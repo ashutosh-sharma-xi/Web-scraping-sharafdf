@@ -20,13 +20,13 @@ Run scrap_categories.py to fetch category information and links and save them to
 
 After successfully executing scrap_categories.py, run prod_links.py to scrape product names and links for each category, subcategory, and subcategory2. The collected data will be saved in products_data.csv.  
 
-**Scripts**
+**Scripts**  
 _scrap_categories.py_    
 This script is responsible for fetching category, subcategory, and subcategory2 information from the SharafDG website.  
+ 
 
-
-```python scrap_categories.py```
-prod_links.py  
+```python scrap_categories.py```  
+_prod_links.py  _
 This script navigates through the URLs collected in cat_data.csv and scrapes product names and links for each category, subcategory, and subcategory2.  
 
 
