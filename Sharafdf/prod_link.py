@@ -38,7 +38,7 @@ def fetch_page_details( prodict, driver = None):
         prod_link = prod.find_element(By.TAG_NAME, "a").get_attribute("href")
         prodict['product'].append(prod_name)
         prodict['link'].append(prod_link)
-        print(prod_name ,':',  prod_link)
+        # print(prod_name ,':',  prod_link)
     
     return prodict
  
@@ -66,13 +66,14 @@ def main(url ):
             # Load a new URL in the new tab
             driver.get(full_url)
             prodict = fetch_page_details(prodict, driver = driver)
-            setup_logging().info(f"url page{page_number} successfully scraped")
+            logger.info(f"url page{page_number} successfully scraped")
         except Exception as e:
-            setup_logging().error(f"url page{page_number} unable to scrape due to \n error: {e}")
+            logger.error(f"url page{page_number} unable to scrape due to \n error: {e}")
     driver.close()
     return prodict
 
 if __name__ == "__main__":
+    logger = setup_logging()
     products_df =pd.DataFrame({'category':[],'sub_category':[],'sub_category2':[],'prod_link':[],'product':[],'link':[]})
 
     df = pd.read_csv('cat_data.csv')
@@ -93,15 +94,24 @@ if __name__ == "__main__":
             if prod[1][-1] is not None:
                 prod_link = prod[1][-1]
             else:
-                break
+                prod_link = 'None'
             
             prodict = main(url=prod_link) 
-            print('\n\n\n------------------',products_df,'\n\n\n------------------')
+            # print(category,sub_category,sub_category2, prod_link )
+            print('\n\n\n------------------\n',prodict,'\n\n\n------------------')
             for product,link in zip(prodict['product'], prodict['link']):
-                new_row=pd.DataFrame({'category':category, 'sub_category':sub_category, 
-                                    'sub_category2':sub_category2,'prod_link':[],'product':product,'link':link})
-                products_df = pd.concat([products_df, new_row], ignore_index=True)
+                new_row=pd.Series({'category':category, 'sub_category':sub_category, 
+                                    'sub_category2':sub_category2,'prod_link':prod_link 
+                                     ,'product':product,'link':link}, )
+                print('\n--------------\n',new_row)
+                # products_df = pd.concat([products_df, new_row], ignore_index=True)
+                new_index = len(products_df)  # Choose an appropriate index
+                products_df.loc[new_index] = new_row
+
+                # print(f'-------------new row---------------\n{new_row}\n\n----------------------------')
+                # print(f'-------------prod df---------------\n{products_df}\n\n----------------------------')
             products_df.to_csv('products_data.csv')
-            setup_logging().info(f'category {category} link {prod_link}  scraped successfully')
+            logger.info(f'category {category} link {prod_link}  scraped successfully')
         except:
-            setup_logging().error(f'category {category} link {prod_link}  unable to scrape') 
+            logger.error(f'category {category} link {prod_link}  unable to scrape') 
+            break
